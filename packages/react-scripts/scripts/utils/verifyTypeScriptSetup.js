@@ -156,7 +156,6 @@ function verifyTypeScriptSetup() {
           : 'react',
       reason: 'to support the new JSX transform in React 17',
     },
-    paths: { value: undefined, reason: 'aliased imports are not supported' },
   };
 
   const formatDiagnosticHost = {
@@ -221,7 +220,9 @@ function verifyTypeScriptSetup() {
   } else {
     // This is bug fix code of https://github.com/facebook/create-react-app/issues/9868
     // Bellow code release variable from non-extensible and freeze status.
-    appTsConfig.compilerOptions = JSON.parse(JSON.stringify(appTsConfig.compilerOptions));
+    appTsConfig.compilerOptions = JSON.parse(
+      JSON.stringify(appTsConfig.compilerOptions)
+    );
 
     // Original appTsConfig.compilerOptions status
     // Object.isExtensible(appTsConfig.compilerOptions) output: false
@@ -260,6 +261,14 @@ function verifyTypeScriptSetup() {
     messages.push(
       `${chalk.cyan('include')} should be ${chalk.cyan.bold('src')}`
     );
+  }
+
+  if (parsedTsConfig.paths != null) {
+    if (semver.lt(ts.version, '4.1.0') && parsedTsConfig.baseUrl == null) {
+      messages.push(
+        `${chalk.cyan('paths')} requires ${chalk.cyan('baseUrl')} to be set`
+      );
+    }
   }
 
   if (messages.length > 0) {
